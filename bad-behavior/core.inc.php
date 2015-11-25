@@ -1,5 +1,5 @@
 <?php if (!defined('BB2_CWD')) die("I said no cheating!");
-define('BB2_VERSION', "2.2.12");
+define('BB2_VERSION', "2.2.17");
 
 // Bad Behavior entry point is bb2_start()
 // If you're reading this, you are probably lost.
@@ -68,6 +68,19 @@ function bb2_reverse_proxy($settings, $headers_mixed)
 	return false;
 }
 
+# FIXME: Bug #12. But this code doesn't currently work.
+function bb2_unpack_php_post_array($key, $value)
+{
+	$unpacked = array();
+	foreach ($value as $k => $v) {
+		$i = $key. '[' . $k . ']';
+		if (is_array($v))
+			$v = bb2_unpack_php_post_array($i, $v);
+		$unpacked[$i] = $v;
+	}
+	return $unpacked;
+}
+
 // Let God sort 'em out!
 function bb2_start($settings)
 {
@@ -87,6 +100,10 @@ function bb2_start($settings)
 	$request_entity = array();
 	if (!strcasecmp($_SERVER['REQUEST_METHOD'], "POST") || !strcasecmp($_SERVER['REQUEST_METHOD'], "PUT")) {
 		foreach ($_POST as $h => $v) {
+			if (is_array($v)) {
+				# Workaround, see Bug #12
+				$v = "Array";
+			}
 			$request_entity[$h] = $v;
 		}
 	}
@@ -165,7 +182,7 @@ function bb2_screen($settings, $package)
 				return $r;
 			}
 			return false;
-		} elseif (stripos($ua, "Yahoo! Slurp") !== FALSE || stripos($ua, "Yahoo! SearchMonkey") !== FALSE) {
+		} elseif (stripos($ua, "Baidu") !== FALSE) {
 			require_once(BB2_CORE . "/searchengine.inc.php");
 			if ($r = bb2_baidu($package)) {
 				if ($r == 1) return false;	# whitelisted
