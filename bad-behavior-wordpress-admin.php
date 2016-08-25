@@ -150,7 +150,7 @@ function bb2_manage() {
 ?>
 <h2><?php _e("Bad Behavior Log"); ?></h2>
 <form method="post" action="<?php echo admin_url("tools.php?page=bb2_manage") ?>">
-	<p>For more information please visit the <a href="http://www.bad-behavior.ioerror.us/">Bad Behavior</a> homepage.</p>
+	<p>For more information please visit the <a href="http://bad-behavior.ioerror.us/">Bad Behavior</a> homepage.</p>
 	<p>See also: <a href="<?php echo admin_url("options-general.php?page=bb2_options") ?>">Settings</a> | <a href="<?php echo admin_url("options-general.php?page=bb2_whitelist") ?>">Whitelist</a></p>
 <div class="tablenav">
 <?php
@@ -243,6 +243,7 @@ function bb2_whitelist()
 	if (!$request_uri) $request_uri = $_SERVER['SCRIPT_NAME'];	# IIS
 
 	if ($_POST) {
+		check_admin_referer('bad-behavior-whitelist');
 		$_POST = array_map('stripslashes_deep', $_POST);
 		if ($_POST['ip']) {
 			$whitelists['ip'] = array_filter(preg_split("/\s+/m", $_POST['ip']));
@@ -272,23 +273,25 @@ function bb2_whitelist()
 	<h2><?php _e("Bad Behavior Whitelist"); ?></h2>
 	<form method="post" action="<?php echo admin_url("options-general.php?page=bb2_whitelist"); ?>">
 	<p>Inappropriate whitelisting WILL expose you to spam, or cause Bad Behavior to stop functioning entirely! DO NOT WHITELIST unless you are 100% CERTAIN that you should.</p>
-	<p>For more information please visit the <a href="http://www.bad-behavior.ioerror.us/">Bad Behavior</a> homepage.</p>
+	<p>For more information please visit the <a href="http://bad-behavior.ioerror.us/">Bad Behavior</a> homepage.</p>
 	<p>See also: <a href="<?php echo admin_url("options-general.php?page=bb2_options") ?>">Settings</a> | <a href="<?php echo admin_url("tools.php?page=bb2_manage"); ?>">Log</a></p>
 
 	<h3><?php _e('IP Address'); ?></h3>
 	<table class="form-table">
-	<tr><td><label>IP address or CIDR format address ranges to be whitelisted (one per line)<br/><textarea cols="24" rows="6" name="ip"><?php echo implode("\n", $whitelists['ip']); ?></textarea></td></tr>
+	<tr><td><label>IP address or CIDR format address ranges to be whitelisted (one per line)<br/><textarea cols="24" rows="6" name="ip"><?php echo esc_textarea(implode("\n", $whitelists['ip'])); ?></textarea></td></tr>
 	</table>
 
 	<h3><?php _e('URL'); ?></h3>
 	<table class="form-table">
-	<tr><td><label>URL fragments beginning with the / after your web site hostname (one per line)<br/><textarea cols="48" rows="6" name="url"><?php echo implode("\n", $whitelists['url']); ?></textarea></td></tr>
+	<tr><td><label>URL fragments beginning with the / after your web site hostname (one per line)<br/><textarea cols="48" rows="6" name="url"><?php echo esc_textarea(implode("\n", $whitelists['url'])); ?></textarea></td></tr>
 	</table>
 
 	<h3><?php _e('User Agent'); ?></h3>
 	<table class="form-table">
-	<tr><td><label>User agent strings to be whitelisted (one per line)<br/><textarea cols="48" rows="6" name="useragent"><?php echo implode("\n", $whitelists['useragent']); ?></textarea></td></tr>
+	<tr><td><label>User agent strings to be whitelisted (one per line)<br/><textarea cols="48" rows="6" name="useragent"><?php echo esc_textarea(implode("\n", $whitelists['useragent'])); ?></textarea></td></tr>
 	</table>
+
+<?php wp_nonce_field('bad-behavior-whitelist'); ?>
 
 	<p class="submit"><input class="button" type="submit" name="submit" value="<?php _e('Update &raquo;'); ?>" /></p>
 	</form>
@@ -304,6 +307,7 @@ function bb2_options()
 	if (!$request_uri) $request_uri = $_SERVER['SCRIPT_NAME'];	# IIS
 
 	if ($_POST) {
+		check_admin_referer('bad-behavior-options');
 		$_POST = array_map('stripslashes_deep', $_POST);
 		if ($_POST['display_stats']) {
 			$settings['display_stats'] = true;
@@ -392,7 +396,7 @@ function bb2_options()
 ?>
 	<h2><?php _e("Bad Behavior"); ?></h2>
 	<form method="post" action="<?php echo admin_url("options-general.php?page=bb2_options"); ?>">
-	<p>For more information please visit the <a href="http://www.bad-behavior.ioerror.us/">Bad Behavior</a> homepage.</p>
+	<p>For more information please visit the <a href="http://bad-behavior.ioerror.us/">Bad Behavior</a> homepage.</p>
 	<p>See also: <a href="<?php echo admin_url("tools.php?page=bb2_manage"); ?>">Log</a> | <a href="<?php echo admin_url("options-general.php?page=bb2_whitelist") ?>">Whitelist</a></p>
 
 	<h3><?php _e('Statistics'); ?></h3>
@@ -423,7 +427,7 @@ function bb2_options()
 	</table>
 
 	<h3><?php _e('European Union Cookie'); ?></h3>
-	<p>Select this option if you believe Bad Behavior's site security cookie is not exempt from the 2012 EU cookie regulation. <a href="http://bad-behavior.ioerror.us/2012/05/03/bad-behavior-2-2-4/">More info</a></p>
+	<p>Select this option if you believe Bad Behavior's site security cookie is not exempt from the 2012 EU cookie regulation. <a href="http://bad-behavior.ioerror.us/2012/05/04/eu-cookie-requirement-disclosure/">More info</a></p>
 	<table class="form-table">
 	<tr><td><label><input type="checkbox" name="eu_cookie" value="true" <?php if ($settings['eu_cookie']) { ?>checked="checked" <?php } ?>/> <?php _e('EU cookie handling'); ?></label></td></tr>
 	</table>
@@ -437,6 +441,8 @@ function bb2_options()
 	<tr><td><label><input type="text" size="32" name="reverse_proxy_header" value="<?php echo sanitize_text_field($settings['reverse_proxy_header']); ?>" /> Header containing Internet clients' IP address</label></td></tr>
 	<tr><td><label>IP address or CIDR format address ranges for your proxy servers (one per line)<br/><textarea cols="24" rows="6" name="reverse_proxy_addresses"><?php echo esc_textarea(implode("\n", $settings['reverse_proxy_addresses'])); ?></textarea></td></tr>
 	</table>
+
+<?php wp_nonce_field('bad-behavior-options'); ?>
 
 	<p class="submit"><input class="button" type="submit" name="submit" value="<?php _e('Update &raquo;'); ?>" /></p>
 	</form>

@@ -5,7 +5,9 @@ function bb2_blacklist($package) {
 	// Blacklisted user agents
 	// These user agent strings occur at the beginning of the line.
 	$bb2_spambots_0 = array(
+		"-",	// brute force password attempts, malicious botnet
 		"8484 Boston Project",	// video poker/porn spam
+		"ArchiveTeam",	// ignores robots.txt and hammers server
 		"adwords",		// referrer spam
 		"autoemailspider",	// spam harvester
 		"blogsearchbot-martin",	// from honeypot
@@ -35,6 +37,7 @@ function bb2_blacklist($package) {
 		"MJ12bot/v1.0.8",	// malicious botnet
 		"Morfeus",		// vulnerability scanner
 		"Movable Type",		// customised spambots
+// msnbot is using this fake user agent string now
 		//"Mozilla ",		// malicious software
 		"Mozilla/0",		// malicious software
 		"Mozilla/1",		// malicious software
@@ -50,10 +53,12 @@ function bb2_blacklist($package) {
 		"Nutscrape/",		// misc comment spam
 		"OmniExplorer",		// spam harvester
 		"Opera/9.64(",		// comment spam bot
+		"PMAFind",		// vulnerability scanner
 		"psycheclone",		// spam harvester
 		"PussyCat ",		// misc comment spam
 		"PycURL",		// misc comment spam
 		"Python-urllib",	// commonly abused
+		"revolt",		// vulnerability scanner
 //		WP 2.5 now has Flash; FIXME
 //		"Shockwave Flash",	// spam harvester
 		"sqlmap/",		// SQL injection
@@ -74,14 +79,17 @@ function bb2_blacklist($package) {
 		"\r",			// A really dumb bot
 		"<sc",			// XSS exploit attempts
 		"; Widows ",		// misc comment/email spam
+		": ;",			// shellshock
+		":;",			// shellshock
 		"a href=",		// referrer spam
+		"ArchiveBot",	// ignores robots.txt and hammers server
 		"Bad Behavior Test",	// Add this to your user-agent to test BB
 		"compatible ; MSIE",	// misc comment/email spam
 		"compatible-",		// misc comment/email spam
 		"DTS Agent",		// misc comment/email spam
 		"Email Extractor",	// spam harvester
 		"Firebird/",		// too old; assumed robot
-		"Gecko/25",		// revisit this in 500 years
+		"Gecko/2525",		// revisit this in 500 years
 		"grub-client",		// search engine ignores robots.txt
 		"hanzoweb",		// very badly behaved crawler
 		"Havij",		// SQL injection tool
@@ -91,6 +99,7 @@ function bb2_blacklist($package) {
 		"Murzillo compatible",	// comment spam bot
 		".NET CLR 1)",		// free poker, etc.
 		".NET CLR1",		// spam harvester
+		"Netsparker",		// vulnerability scanner
 		"Nikto/",		// vulnerability scanner
 		"Perman Surfer",	// old and very broken harvester
 		"POE-Component-Client",	// free poker, etc.
@@ -124,11 +133,9 @@ function bb2_blacklist($package) {
 	// These are regular expression matches.
 	$bb2_spambots_regex = array(
 		"/^[A-Z]{10}$/",	// misc email spam
-// msnbot is using this fake user agent string now
-//		"/^Mozilla...[05]$/i",	// fake user agent/email spam
 		"/[bcdfghjklmnpqrstvwxz ]{8,}/",
 //		"/(;\){1,2}$/",		// misc spammers/harvesters
-//		"/MSIE.*Windows XP/",	// misc comment spam
+		"/MSIE.*Windows XP/",	// misc comment spam
 		"/MSIE [2345]/",	// too old; assumed robot
 	);
 
