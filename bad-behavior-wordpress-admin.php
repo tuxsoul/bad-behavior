@@ -9,7 +9,6 @@ function bb2_admin_pages() {
 		add_options_page(__("Bad Behavior"), __("Bad Behavior"), 'manage_options', 'bb2_options', 'bb2_options');
 		add_options_page(__("Bad Behavior Whitelist"), __("Bad Behavior Whitelist"), 'manage_options', 'bb2_whitelist', 'bb2_whitelist');
 		add_management_page(__("Bad Behavior Log"), __("Bad Behavior Log"), 'manage_options', 'bb2_manage', 'bb2_manage');
-		@session_start();
 	}
 }
 
@@ -21,6 +20,8 @@ function bb2_clean_log_link($uri) {
 }
 
 function bb2_httpbl_lookup($ip) {
+	@session_start();
+
 	// NB: Many of these are defunct
 	$engines = array(
 		1 => "AltaVista",
