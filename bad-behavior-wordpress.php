@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Bad Behavior
-Version: 2.2.12
+Version: 2.2.22
 Description: Deny automated spambots access to your PHP-based Web site.
 Plugin URI: http://bad-behavior.ioerror.us/
 Author: Michael Hampton
@@ -24,7 +24,7 @@ You should have received a copy of the GNU Lesser General Public License along
 with this program. If not, see <http://www.gnu.org/licenses/>.
 
 Please report any problems to bad . bots AT ioerror DOT us
-http://www.bad-behavior.ioerror.us/
+http://bad-behavior.ioerror.us/
 */
 
 ###############################################################################
@@ -56,9 +56,7 @@ function bb2_db_affected_rows() {
 
 // Escape a string for database usage
 function bb2_db_escape($string) {
-	global $wpdb;
-
-	return $wpdb->escape($string);
+	return esc_sql($string);
 }
 
 // Return the number of rows in a particular query.
@@ -78,7 +76,7 @@ function bb2_db_query($query) {
 	$result = $wpdb->get_results($query, ARRAY_A);
 	if ( defined('WP_DEBUG') and WP_DEBUG == true )
 		$wpdb->show_errors();
-	if (mysql_error()) {
+	if ($wpdb->last_error) {
 		return FALSE;
 	}
 	return $result;
@@ -109,7 +107,7 @@ function bb2_read_settings() {
 	// Add in default settings when they aren't yet present in WP
 	$settings = get_option('bad_behavior_settings');
 	if (!$settings) $settings = array();
-	return array_merge(array('log_table' => $wpdb->prefix . 'bad_behavior', 'display_stats' => false, 'strict' => false, 'verbose' => false, 'logging' => true, 'httpbl_key' => '', 'httpbl_threat' => '25', 'httpbl_maxage' => '30', 'offsite_forms' => false, 'eu_cookie' => false, 'reverse_proxy' => false, 'reverse_proxy_header' => 'X-Forwarded-For', 'reverse_proxy_addresses' => array(),), $settings);
+	return array_merge(array('log_table' => $wpdb->prefix . 'bad_behavior', 'display_stats' => false, 'strict' => false, 'verbose' => false, 'logging' => true, 'httpbl_key' => '', 'httpbl_threat' => '25', 'httpbl_maxage' => '30', 'offsite_forms' => false, 'reverse_proxy' => false, 'reverse_proxy_header' => 'X-Forwarded-For', 'reverse_proxy_addresses' => array(),), $settings);
 	
 	
 }
@@ -163,7 +161,7 @@ function bb2_insert_stats($force = false) {
 	if ($force || $settings['display_stats']) {
 		$blocked = bb2_db_query("SELECT COUNT(*) FROM " . $settings['log_table'] . " WHERE `key` NOT LIKE '00000000'");
 		if ($blocked !== FALSE) {
-			echo sprintf('<p><a href="http://www.bad-behavior.ioerror.us/">%1$s</a> %2$s <strong>%3$s</strong> %4$s</p>', __('Bad Behavior'), __('has blocked'), $blocked[0]["COUNT(*)"], __('access attempts in the last 7 days.'));
+			echo sprintf('<p><a href="http://bad-behavior.ioerror.us/">%1$s</a> %2$s <strong>%3$s</strong> %4$s</p>', __('Bad Behavior'), __('has blocked'), $blocked[0]["COUNT(*)"], __('access attempts in the last 7 days.'));
 		}
 	}
 	if (@!empty($bb2_result)) {
